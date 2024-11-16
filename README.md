@@ -58,6 +58,58 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Banco de Dados
+Após a instalação, basta criar o arquivo ``docker-compose.yaml``, na pasta raiz do projeto, e inserir dentro dele o seguinte código:
+```
+    version: '3.5'
+    
+    services:
+      postgres:
+        image: postgres:latest
+        environment:
+          POSTGRES_USER: ${DB_USERNAME}
+          POSTGRES_PASSWORD: ${DB_PASSWORD}
+          PGDATA: /data/postgres
+        volumes:
+          - postgres:/data/postgres
+        ports:
+          - "5432:5432"
+        networks:
+          - postgres
+        restart: unless-stopped
+    
+      pgadmin:
+        image: dpage/pgadmin4
+        environment:
+          PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
+          PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+        ports:
+          - "8081:80"
+        depends_on:
+          - postgres
+        networks:
+          - postgres
+    
+    networks:
+      postgres:
+        driver: bridge
+    
+    volumes:
+        postgres:
+```
+É importante criar também um arquivo ``.env`` e colocar as variáveis, que são referenciadas no yaml, na raiz do projeto. Segue um exemplo de arquivo ``.env``:
+```
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_NAME=db_loja
+DB_ADMIN_EMAIL=admin@root.com
+```
+Depois, basta executar o seguinte comando no terminal: ``docker-compose up -d``. Lembrando que, dessa forma, subiremos o postgres como banco de dados. Caso queira trabalhar com outro vendor, é possível adequar as configurações de acordo com a necessidade.
+
+
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
